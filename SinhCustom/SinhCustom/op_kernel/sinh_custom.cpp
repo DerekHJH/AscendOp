@@ -5,7 +5,7 @@ constexpr int32_t BUFFER_NUM = 2;
 class KernelSinh {
 public:
     __aicore__ inline KernelSinh() {}
-    __aicore__ inline void Init(/* 开发者填充参数列表 */)
+    __aicore__ inline void Init(GM_ADDR x, GM_ADDR y, uint32_t totalLength, uint32_t tileNum)
     {
         ASSERT(GetBlockNum() != 0 && "block dim can not be zero!");
         this->blockLength = totalLength / GetBlockNum();
