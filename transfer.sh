@@ -1,2 +1,2 @@
 git pull
-scp -r ../ hjh4:/home/hjh
+scp -r SinhCustom hjh4:/home/hjh
