@@ -1,12 +1,12 @@
 /**
- * @file operator_desc.h
- *
- * Copyright (C) 2023-2024. Huawei Technologies Co., Ltd. All rights reserved.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+* @file operator_desc.h
+*
+* Copyright (C) 2020. Huawei Technologies Co., Ltd. All rights reserved.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
 #ifndef OPERATOR_DESC_H
 #define OPERATOR_DESC_H
 

@@ -1,19 +1,18 @@
 /**
- * @file common.cpp
- *
- * Copyright (C) 2023-2024. Huawei Technologies Co., Ltd. All rights reserved.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+* @file common.cpp
+*
+* Copyright (C) 2020. Huawei Technologies Co., Ltd. All rights reserved.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
 #include "common.h"
 
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
 #include <fstream>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 extern bool g_isDevice;
 
@@ -69,8 +68,8 @@ bool WriteFile(const std::string &filePath, const void *buffer, size_t size)
         return false;
     }
 
-    size_t writeSize = write(fd, buffer, size);
-    (void)close(fd);
+    auto writeSize = write(fd, buffer, size);
+    (void) close(fd);
     if (writeSize != size) {
         ERROR_LOG("Write file Failed.");
         return false;

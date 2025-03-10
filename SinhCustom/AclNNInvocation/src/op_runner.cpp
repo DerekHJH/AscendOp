@@ -1,19 +1,17 @@
 /**
- * @file op_runner.cpp
- *
- * Copyright (C) 2023-2024. Huawei Technologies Co., Ltd. All rights reserved.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+* @file op_runner.cpp
+*
+* Copyright (C) 2020. Huawei Technologies Co., Ltd. All rights reserved.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
 #include "op_runner.h"
-
-#include <cassert>
+#include "aclnn_sinh_custom.h"
 #include <limits>
-
+#include <cassert>
 #include "acl/acl_op_compiler.h"
-#include "aclnn_add_custom.h"
 #include "common.h"
 
 using namespace std;
@@ -24,14 +22,10 @@ OpRunner::OpRunner(OperatorDesc *opDesc) : opDesc_(opDesc)
 {
     numInputs_ = opDesc->inputDesc.size();
     numOutputs_ = opDesc->outputDesc.size();
-    workspace_ = nullptr;
 }
 
 OpRunner::~OpRunner()
 {
-    if (workspace_ != nullptr) {
-        (void)aclrtFree(workspace_);
-    }
     for (size_t i = 0; i < numInputs_; ++i) {
         (void)aclDestroyTensor(inputTensor_[i]);
         (void)aclDestroyDataBuffer(inputBuffers_[i]);
@@ -60,7 +54,7 @@ bool OpRunner::Init()
     for (size_t i = 0; i < numInputs_; ++i) {
         auto size = GetInputSize(i);
         void *devMem = nullptr;
-        if (aclrtMalloc(&devMem, size, ACL_MEM_MALLOC_HUGE_FIRST) != ACL_SUCCESS) {
+        if (aclrtMalloc(&devMem, size, ACL_MEM_MALLOC_NORMAL_ONLY) != ACL_SUCCESS) {
             ERROR_LOG("Malloc device memory for input[%zu] failed", i);
             return false;
         }
@@ -69,7 +63,7 @@ bool OpRunner::Init()
 
         void *hostInput = nullptr;
         if (g_isDevice) {
-            if (aclrtMalloc(&hostInput, size, ACL_MEM_MALLOC_HUGE_FIRST) != ACL_SUCCESS) {
+            if (aclrtMalloc(&hostInput, size, ACL_MEM_MALLOC_NORMAL_ONLY) != ACL_SUCCESS) {
                 ERROR_LOG("Malloc device memory for input[%zu] failed", i);
                 return false;
             }
@@ -85,9 +79,8 @@ bool OpRunner::Init()
         }
         hostInputs_.emplace_back(hostInput);
 
-        aclTensor *inputTensor =
-            aclCreateTensor(GetInputShape(i).data(), GetInputNumDims(i), GetInputDataType(i), nullptr, 0,
-                            GetInputFormat(i), GetInputShape(i).data(), GetInputNumDims(i), devInputs_[i]);
+        aclTensor *inputTensor = aclCreateTensor(GetInputShape(i).data(), GetInputNumDims(i), GetInputDataType(i),
+            nullptr, 0, GetInputFormat(i), GetInputShape(i).data(), GetInputNumDims(i), devInputs_[i]);
         if (inputTensor == nullptr) {
             ERROR_LOG("Create Tensor for input[%zu] failed", i);
             return false;
@@ -98,7 +91,7 @@ bool OpRunner::Init()
     for (size_t i = 0; i < numOutputs_; ++i) {
         auto size = GetOutputSize(i);
         void *devMem = nullptr;
-        if (aclrtMalloc(&devMem, size, ACL_MEM_MALLOC_HUGE_FIRST) != ACL_SUCCESS) {
+        if (aclrtMalloc(&devMem, size, ACL_MEM_MALLOC_NORMAL_ONLY) != ACL_SUCCESS) {
             ERROR_LOG("Malloc device memory for output[%zu] failed", i);
             return false;
         }
@@ -107,7 +100,7 @@ bool OpRunner::Init()
 
         void *hostOutput = nullptr;
         if (g_isDevice) {
-            if (aclrtMalloc(&hostOutput, size, ACL_MEM_MALLOC_HUGE_FIRST) != ACL_SUCCESS) {
+            if (aclrtMalloc(&hostOutput, size, ACL_MEM_MALLOC_NORMAL_ONLY) != ACL_SUCCESS) {
                 ERROR_LOG("Malloc device memory for output[%zu] failed", i);
                 return false;
             }
@@ -123,9 +116,8 @@ bool OpRunner::Init()
         }
         hostOutputs_.emplace_back(hostOutput);
 
-        aclTensor *outputTensor =
-            aclCreateTensor(GetOutputShape(i).data(), GetOutputNumDims(i), GetOutputDataType(i), nullptr, 0,
-                            GetOutputFormat(i), GetOutputShape(i).data(), GetOutputNumDims(i), devOutputs_[i]);
+        aclTensor *outputTensor = aclCreateTensor(GetOutputShape(i).data(), GetOutputNumDims(i), GetOutputDataType(i),
+            nullptr, 0, GetOutputFormat(i), GetOutputShape(i).data(), GetOutputNumDims(i), devOutputs_[i]);
         if (outputTensor == nullptr) {
             ERROR_LOG("Create Tensor for output[%zu] failed", i);
             return false;
@@ -238,6 +230,7 @@ aclDataType OpRunner::GetOutputDataType(size_t index) const
     return aclGetTensorDescType(opDesc_->outputDesc[index]);
 }
 
+
 aclFormat OpRunner::GetOutputFormat(size_t index) const
 {
     if (index >= numOutputs_) {
@@ -313,28 +306,27 @@ bool OpRunner::RunOp()
 
     size_t workspaceSize = 0;
     aclOpExecutor *handle = nullptr;
-    auto ret =
-        aclnnAddCustomGetWorkspaceSize(inputTensor_[0], inputTensor_[1], outputTensor_[0], &workspaceSize, &handle);
+    //添加计算workspace大小并申请内存代码
+    auto ret = aclnnSinhCustomGetWorkspaceSize(inputTensor_[0], outputTensor_[0],
+                                              &workspaceSize, &handle);
     if (ret != ACL_SUCCESS) {
         (void)aclrtDestroyStream(stream);
         ERROR_LOG("Get Operator Workspace failed. error code is %d", static_cast<int32_t>(ret));
         return false;
     }
-    INFO_LOG("Execute aclnnAddCustomGetWorkspaceSize success, workspace size %lu", workspaceSize);
-
+   
+    void *workspace = nullptr;
     if (workspaceSize != 0) {
-        if (aclrtMalloc(&workspace_, workspaceSize, ACL_MEM_MALLOC_HUGE_FIRST) != ACL_SUCCESS) {
+        if (aclrtMalloc(&workspace, workspaceSize, ACL_MEM_MALLOC_NORMAL_ONLY) != ACL_SUCCESS) {
             ERROR_LOG("Malloc device memory failed");
         }
     }
-
-    ret = aclnnAddCustom(workspace_, workspaceSize, handle, stream);
-    if (ret != ACL_SUCCESS) {
+    //添加执行算子代码
+    if (aclnnSinhCustom(workspace, workspaceSize, handle, stream) != ACL_SUCCESS) {
         (void)aclrtDestroyStream(stream);
         ERROR_LOG("Execute Operator failed. error code is %d", static_cast<int32_t>(ret));
         return false;
     }
-    INFO_LOG("Execute aclnnAddCustom success");
 
     ret = aclrtSynchronizeStreamWithTimeout(stream, 5000);
     if (ret != SUCCESS) {
@@ -362,7 +354,9 @@ bool OpRunner::RunOp()
     return true;
 }
 
-template <typename T> void DoPrintData(const T *data, size_t count, size_t elementsPerRow)
+
+template<typename T>
+void DoPrintData(const T *data, size_t count, size_t elementsPerRow)
 {
     assert(elementsPerRow != 0);
     for (size_t i = 0; i < count; ++i) {

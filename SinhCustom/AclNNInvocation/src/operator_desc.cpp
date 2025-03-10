@@ -1,15 +1,14 @@
 /**
- * @file operator_desc.cpp
- *
- * Copyright (C) 2023-2024. Huawei Technologies Co., Ltd. All rights reserved.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
-#include "operator_desc.h"
-
+* @file operator_desc.cpp
+*
+* Copyright (C) 2020. Huawei Technologies Co., Ltd. All rights reserved.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
 #include "common.h"
+#include "operator_desc.h"
 
 using namespace std;
 
@@ -24,9 +23,13 @@ OperatorDesc::~OperatorDesc()
     for (auto *desc : outputDesc) {
         aclDestroyTensorDesc(desc);
     }
+
 }
 
-OperatorDesc &OperatorDesc::AddInputTensorDesc(aclDataType dataType, int numDims, const int64_t *dims, aclFormat format)
+OperatorDesc &OperatorDesc::AddInputTensorDesc(aclDataType dataType,
+                                               int numDims,
+                                               const int64_t *dims,
+                                               aclFormat format)
 {
     aclTensorDesc *desc = aclCreateTensorDesc(dataType, numDims, dims, format);
     if (desc == nullptr) {
@@ -37,7 +40,9 @@ OperatorDesc &OperatorDesc::AddInputTensorDesc(aclDataType dataType, int numDims
     return *this;
 }
 
-OperatorDesc &OperatorDesc::AddOutputTensorDesc(aclDataType dataType, int numDims, const int64_t *dims,
+OperatorDesc &OperatorDesc::AddOutputTensorDesc(aclDataType dataType,
+                                                int numDims,
+                                                const int64_t *dims,
                                                 aclFormat format)
 {
     aclTensorDesc *desc = aclCreateTensorDesc(dataType, numDims, dims, format);

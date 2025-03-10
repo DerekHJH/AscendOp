@@ -27,7 +27,7 @@
                 },
                 "ASCEND_COMPUTE_UNIT": {
                     "type": "STRING",
-                    "value": "Ascend910B4"
+                    "value": "ascend910b"
                 },
                 "ENABLE_TEST": {
                     "type": "BOOL",
@@ -35,7 +35,7 @@
                 },
                 "vendor_name": {
                     "type": "STRING",
-                    "value": "customize"
+                    "value": "hjh"
                 },
                 "ASCEND_CANN_PACKAGE_PATH": {
                     "type": "PATH",

@@ -1,20 +1,20 @@
 /**
- * @file common.h
- *
- * Copyright (C) 2023-2024. Huawei Technologies Co., Ltd. All rights reserved.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+* @file common.h
+*
+* Copyright (C) 2020. Huawei Technologies Co., Ltd. All rights reserved.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
 #ifndef COMMON_H
 #define COMMON_H
 
 #include <cstdio>
-#include <iomanip>
-#include <iostream>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <iomanip>
 
 #include "acl/acl.h"
 

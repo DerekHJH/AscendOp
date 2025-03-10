@@ -87,5 +87,5 @@ extern "C" __global__ __aicore__ void sinh_custom(GM_ADDR x, GM_ADDR y, GM_ADDR 
     GET_TILING_DATA(tiling_data, tiling);
     KernelSinh op;
     op.Init(x, y, tiling_data.totalLength, tiling_data.tileNum);
-    op.Process()
+    op.Process();
 }

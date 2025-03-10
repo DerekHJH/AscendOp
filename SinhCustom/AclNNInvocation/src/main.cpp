@@ -1,22 +1,22 @@
 /**
- * @file main.cpp
- *
- * Copyright (C) 2023-2024. Huawei Technologies Co., Ltd. All rights reserved.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
+* @file main.cpp
+*
+* Copyright (C) 2023. Huawei Technologies Co., Ltd. All rights reserved.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
 #include <cstdint>
 #include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "acl/acl.h"
-#include "common.h"
 #include "op_runner.h"
+
+#include "common.h"
 
 bool g_isDevice = false;
 int deviceId = 0;
@@ -24,11 +24,10 @@ int deviceId = 0;
 OperatorDesc CreateOpDesc()
 {
     // define operator
-    std::vector<int64_t> shape{8, 2048};
+    std::vector<int64_t> shape { 8, 2048 };
     aclDataType dataType = ACL_FLOAT16;
     aclFormat format = ACL_FORMAT_ND;
     OperatorDesc opDesc;
-    opDesc.AddInputTensorDesc(dataType, shape.size(), shape.data(), format);
     opDesc.AddInputTensorDesc(dataType, shape.size(), shape.data(), format);
     opDesc.AddOutputTensorDesc(dataType, shape.size(), shape.data(), format);
     return opDesc;
@@ -38,7 +37,6 @@ bool SetInputData(OpRunner &runner)
 {
     size_t fileSize = 0;
     ReadFile("../input/input_x.bin", fileSize, runner.GetInputBuffer<void>(0), runner.GetInputSize(0));
-    ReadFile("../input/input_y.bin", fileSize, runner.GetInputBuffer<void>(1), runner.GetInputSize(1));
     INFO_LOG("Set input success");
     return true;
 }
@@ -50,7 +48,7 @@ bool ProcessOutputData(OpRunner &runner)
     return true;
 }
 
-void DestroyResource()
+void DestoryResource()
 {
     bool flag = false;
     if (aclrtResetDevice(deviceId) != ACL_SUCCESS) {
@@ -63,9 +61,9 @@ void DestroyResource()
         flag = true;
     }
     if (flag) {
-        ERROR_LOG("Destroy resource failed");
+        ERROR_LOG("Destory resource failed");
     } else {
-        INFO_LOG("Destroy resource success");
+        INFO_LOG("Destory resource success");
     }
 }
 
@@ -76,7 +74,8 @@ bool InitResource()
         int ret = mkdir(output.c_str(), 0700);
         if (ret == 0) {
             INFO_LOG("Make output directory successfully");
-        } else {
+        }
+        else {
             ERROR_LOG("Make output directory fail");
             return false;
         }
@@ -100,7 +99,7 @@ bool InitResource()
     aclrtRunMode runMode;
     if (aclrtGetRunMode(&runMode) != ACL_SUCCESS) {
         ERROR_LOG("Get run mode failed");
-        DestroyResource();
+        DestoryResource();
         return false;
     }
     g_isDevice = (runMode == ACL_DEVICE);
@@ -152,11 +151,11 @@ int main(int argc, char **argv)
     INFO_LOG("Init resource success");
 
     if (!RunOp()) {
-        DestroyResource();
+        DestoryResource();
         return FAILED;
     }
 
-    DestroyResource();
+    DestoryResource();
 
     return SUCCESS;
 }

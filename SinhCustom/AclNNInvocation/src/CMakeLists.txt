@@ -27,8 +27,8 @@ set(LIB_PATH $ENV{NPU_HOST_LIB})
 
 # Dynamic libraries in the stub directory can only be used for compilation
 if (NOT DEFINED ENV{NPU_HOST_LIB})
-    string(TOLOWER "${CMAKE_SYSTEM_NAME}" SYSTEM_NAME_LOWER)
-    set(LIB_PATH "/usr/local/Ascend/ascend-toolkit/latest/${CMAKE_SYSTEM_PROCESSOR}-${SYSTEM_NAME_LOWER}/devlib")
+    set(LIB_PATH "/usr/local/Ascend/ascend-toolkit/latest/acllib/lib64/stub/")
+    set(LIB_PATH1 "/usr/local/Ascend/ascend-toolkit/latest/atc/lib64/stub/")
     message(STATUS "set default LIB_PATH: ${LIB_PATH}")
 else ()
     message(STATUS "env LIB_PATH: ${LIB_PATH}")
@@ -36,25 +36,28 @@ endif()
 
 # Header path
 include_directories(
+    ${INC_PATH}/runtime/include
+    ${INC_PATH}/atc/include
     ../inc
-    ${INC_PATH}/include
     ${CUST_PKG_PATH}/include
 )
 
 # add host lib path
 link_directories(
     ${LIB_PATH}
+    ${LIB_PATH1}
     ${CUST_PKG_PATH}/lib
 )
 
-add_executable(execute_add_op
+add_executable(execute_sinh_op
     operator_desc.cpp
     op_runner.cpp
     main.cpp
+    op_runner.cpp
     common.cpp
 )
 
-target_link_libraries(execute_add_op
+target_link_libraries(execute_sinh_op
     ascendcl
     cust_opapi
     acl_op_compiler
@@ -62,4 +65,4 @@ target_link_libraries(execute_add_op
     stdc++
 )
 
-install(TARGETS execute_add_op DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+install(TARGETS execute_sinh_op DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
